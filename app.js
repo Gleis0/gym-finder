@@ -187,6 +187,7 @@
         const am = Object.keys(AMEN).filter((k) => g.am[k] && k !== 'pt').map((k) => `<span class="tag">${AMEN[k]}</span>`).join('');
         const inCmp = state.cmp.has(g.id);
         return `<article class="row${state.hot === g.id ? ' is-hot' : ''}" data-id="${g.id}">
+          <button class="cmp-mini" data-cmp="${g.id}" aria-pressed="${inCmp}" aria-label="${esc(g.name)} vergleichen">${inCmp ? '✓' : '+'}</button>
           <div>
             <h3><button data-open="${g.id}">${esc(g.name)}</button></h3>
             <div class="meta">${esc(g.kind)}, ${esc(REGIONS[g.region])}, ${fmtKm(distOf(g))} ${state.me ? 'von dir' : 'vom Bahnhof'}</div>
@@ -320,7 +321,7 @@
       <div class="meta">${esc(g.kind)}, ${esc(g.chain)}</div>
       <p style="margin-top:6px"><span class="status ${st.k}"><i></i>${esc(st.t)}</span></p>
       <p class="d-lead">${esc(g.verdict)}</p>
-      <div class="d-actions">
+      <div class="d-actions d-top">
         <a class="btn primary" href="${g.url}" target="_blank" rel="noopener">Website öffnen</a>
         <a class="btn" href="${maps}" target="_blank" rel="noopener">Route planen</a>
         <button class="btn" data-cmp="${g.id}" aria-pressed="${inCmp}">${inCmp ? 'Im Vergleich' : 'Vergleichen'}</button>
@@ -340,6 +341,11 @@
       <div class="fit">${fit}</div>
       <h3>Quellen</h3>
       <div class="src">${g.src.map((s) => `<div><a href="${s}" target="_blank" rel="noopener">${esc(s.replace(/^https?:\/\/(www\.)?/, ''))}</a></div>`).join('')}</div>
+      <div class="d-bar">
+        <a class="btn primary" href="${g.url}" target="_blank" rel="noopener">Website</a>
+        <a class="btn" href="${maps}" target="_blank" rel="noopener">Route</a>
+        <button class="btn" data-cmp="${g.id}" aria-pressed="${inCmp}">${inCmp ? 'Im Vergleich' : 'Vergleichen'}</button>
+      </div>
     `);
     setHot(id, false);
     if (map && window.matchMedia('(min-width:1061px)').matches) map.panTo([g.lat, g.lng]);
@@ -353,14 +359,23 @@
       state.cmp.add(id);
     }
     store.set('cmp', [...state.cmp]);
-    $$(`[data-cmp="${id}"]`).forEach((b) => { const on = state.cmp.has(id); b.setAttribute('aria-pressed', on); b.textContent = on ? 'Im Vergleich' : 'Vergleichen'; });
+    $$(`[data-cmp="${id}"]`).forEach((b) => { const on = state.cmp.has(id); b.setAttribute('aria-pressed', on); b.textContent = b.classList.contains('cmp-mini') ? (on ? '✓' : '+') : (on ? 'Im Vergleich' : 'Vergleichen'); });
+    if (state.cmp.has(id)) toast(state.cmp.size === 1 ? 'Gemerkt – wähle ein zweites Gym' : `${state.cmp.size} Gyms im Vergleich`);
     renderTray();
+  markTab();
   }
   let flashT;
-  function flashTray(msg) { $('#trayTxt').textContent = msg; clearTimeout(flashT); flashT = setTimeout(renderTray, 2200); }
+  function flashTray(msg) { $('#trayTxt').textContent = msg; toast(msg); clearTimeout(flashT); flashT = setTimeout(renderTray, 2200); }
+  let toastT;
+  function toast(msg) {
+    const t = $('#toast'); if (!t) return;
+    t.textContent = msg; t.classList.add('on');
+    clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2200);
+  }
   function renderTray() {
     const n = state.cmp.size;
     $('#navCmpN').textContent = n;
+    const tb = $('#tabCmpN'); tb.textContent = n; tb.hidden = n === 0;
     $('#tray').classList.toggle('on', n > 0);
     const names = [...state.cmp].map((id) => GYMS.find((g) => g.id === id).name);
     $('#trayTxt').textContent = n === 1 ? `${names[0]} – wähle ein zweites Gym` : names.join(' vs. ');
@@ -485,6 +500,46 @@
     const t = e.target.closest('[data-type]');
     if (t) { state.type = t.dataset.type; selType.value = state.type; store.set('type', state.type); sizeSelect(selType); renderAll(); }
   });
+  $('#list').addEventListener('click', (e) => {
+    if (e.target.closest('button, a')) return;
+    const r = e.target.closest('.row'); if (r) showGym(r.dataset.id);
+  });
+  const mobile = () => window.matchMedia('(max-width:760px)').matches;
+  function setView(v) {
+    $('#split').classList.toggle('map-on', v === 'map');
+    $$('.seg button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.view === v));
+    if (v === 'map' && map) setTimeout(() => { map.invalidateSize(); fitTo(filtered().length ? filtered() : GYMS); }, 60);
+  }
+  $$('.seg button').forEach((b) => b.addEventListener('click', () => setView(b.dataset.view)));
+  const goTo = (id) => { const el = document.getElementById(id); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 54, behavior: 'smooth' }); };
+  $$('.tabbar button').forEach((b) => b.addEventListener('click', () => {
+    const g = b.dataset.go;
+    if (g === 'top') window.scrollTo({ top: 0, behavior: 'smooth' });
+    else if (g === 'quartiere') goTo('quartiere');
+    else if (g === 'list') { setView('list'); goTo('alle'); }
+    else if (g === 'map') { setView('map'); const sp = document.getElementById('split'); window.scrollTo({ top: sp.getBoundingClientRect().top + window.scrollY - 54 - $('.tools').offsetHeight - 8, behavior: 'smooth' }); }
+    else if (g === 'cmp') { state.cmp.size >= 2 ? showCompare() : (toast(state.cmp.size ? 'Wähle noch ein zweites Gym mit +' : 'Tippe bei zwei Gyms auf +, um sie zu vergleichen'), setView('list'), goTo('alle')); }
+  }));
+  // aktiven Tab markieren
+  const secs = [['top', 'main'], ['quartiere', 'quartiere'], ['list', 'alle']];
+  function markTab() {
+    const y = window.scrollY + 120;
+    let cur = 'top';
+    const q = document.getElementById('quartiere'), a = document.getElementById('alle'), v = document.getElementById('ausblick');
+    if (y >= q.offsetTop) cur = 'quartiere';
+    if (y >= a.offsetTop && y < v.offsetTop) cur = $('#split').classList.contains('map-on') ? 'map' : 'list';
+    if (y >= v.offsetTop) cur = '';
+    $$('.tabbar button').forEach((b) => b.classList.toggle('on', b.dataset.go === cur));
+  }
+  window.addEventListener('scroll', () => { if (!markTab.p) { markTab.p = requestAnimationFrame(() => { markTab(); markTab.p = 0; }); } }, { passive: true });
+  // Bottom-Sheet: nach unten wischen schliesst
+  (() => {
+    const d = $('#drawer'), h = $('#dHandle');
+    let y0 = null, dy = 0;
+    h.addEventListener('touchstart', (e) => { if (!mobile()) return; y0 = e.touches[0].clientY; dy = 0; d.classList.add('dragging'); }, { passive: true });
+    h.addEventListener('touchmove', (e) => { if (y0 == null) return; dy = Math.max(0, e.touches[0].clientY - y0); d.style.transform = `translateY(${dy}px)`; }, { passive: true });
+    h.addEventListener('touchend', () => { if (y0 == null) return; d.classList.remove('dragging'); d.style.transform = ''; if (dy > 110) closeDrawer(); y0 = null; });
+  })();
   $('#list').addEventListener('mouseover', (e) => { const r = e.target.closest('.row'); if (r && r.dataset.id !== state.hot) setHot(r.dataset.id, false); });
   $('#list').addEventListener('mouseleave', () => setHot(null, false));
   $('#dClose').addEventListener('click', closeDrawer);

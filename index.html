@@ -303,6 +303,159 @@ footer strong{color:var(--ivory);font-family:var(--serif);font-size:20px;font-we
 
 .rise{animation:rise .8s cubic-bezier(.2,.8,.2,1) both}
 @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* Toolbar groups */
+.chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg{display:none}
+.tabbar,.toast{display:none}
+.grab{display:none}
+.cmp-mini{display:none}
+.d-bar{display:none}
+.row{cursor:pointer}
+
+/* ============ Mobile ============ */
+@media (max-width:760px){
+  body{font-size:16px;padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+  .wrap{padding:0 18px}
+  .top .wrap{height:54px}
+  .brand b{font-size:20px}
+  .brand span{display:inline;font-size:12px;padding-left:10px}
+  .nav{display:none}
+  section.block{padding:52px 0}
+  .block-head{margin-bottom:22px;gap:10px}
+  .block-head h2{font-size:2.15rem}
+  .block-head p{font-size:15px}
+
+  /* Hero: Foto oben, Satz überlappt */
+  .hero{display:block;min-height:0;padding:0 0 28px}
+  .hero-media{position:relative;inset:auto;height:38vh;min-height:250px;max-height:380px}
+  .hero::after{display:none}
+  .hero-media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,22,29,.15) 0%,rgba(10,22,29,.25) 45%,rgba(10,22,29,1) 100%)}
+  .hero-grid{margin-top:-120px;gap:26px;grid-template-columns:minmax(0,1fr)}
+  .hero-grid > *{min-width:0}
+  .place{font-size:13px;margin-bottom:12px}
+  .place::before{width:22px}
+  .sentence{font-size:clamp(2.3rem,10.5vw,3rem);line-height:1.06}
+  .prefs{font-size:1.06rem;line-height:1.85;margin-top:18px}
+  .hero-note{display:none}
+  .credit{position:static;padding:14px 18px 0;font-size:11px}
+
+  /* Top 3 zum Wischen */
+  .podium{background:none;border:0;padding:0;backdrop-filter:none;-webkit-backdrop-filter:none}
+  .podium::before{display:none}
+  .podium h2{font-size:22px}
+  .podium .sub{margin-bottom:12px}
+  #podium{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -18px;padding:0 18px 6px;scrollbar-width:none}
+  #podium::-webkit-scrollbar{display:none}
+  .pod-item{flex:0 0 84%;scroll-snap-align:start;grid-template-columns:34px 1fr;border:1px solid var(--line2)!important;border-radius:12px;padding:16px 16px 14px;background:rgba(15,34,43,.9);align-content:start}
+  .pod-rank{font-size:34px}
+  .pod-name{font-size:18px}
+  .pod-why{font-size:14.5px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .pod-right{grid-column:1/-1;flex-direction:row;align-items:center;justify-content:space-between;padding-top:10px;margin-top:4px;border-top:1px solid var(--line)}
+  .pod-empty{white-space:normal}
+
+  /* Quartiere als Karussell */
+  .q-split{display:block;border:0}
+  .q-photo{display:none}
+  .quarters{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -18px;padding:0 18px 4px;scrollbar-width:none}
+  .quarters::-webkit-scrollbar{display:none}
+  .q{flex:0 0 62%;scroll-snap-align:start;border:1px solid var(--line2);border-radius:12px;min-height:150px;padding:16px}
+  .q .n{font-size:38px}
+  .q .t{margin-top:10px;font-size:16px}
+  .q .d{font-size:13px}
+
+  /* Werkzeugleiste klebt oben */
+  .tools{position:sticky;top:54px;z-index:800;background:rgba(10,22,29,.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);margin:0 -18px 6px;padding:8px 18px;border-bottom:1px solid var(--line);gap:8px}
+  .search{flex:1 1 0;min-width:0}
+  .search input{font-size:16px;padding:9px 4px 9px 28px}
+  .seg{display:inline-flex;border:1px solid var(--line2);border-radius:999px;padding:3px;flex:none}
+  .seg button{all:unset;cursor:pointer;padding:7px 14px;border-radius:999px;font-size:14px;color:var(--mist)}
+  .seg button[aria-pressed="true"]{background:var(--brass);color:var(--night);font-weight:600}
+  .seg button:focus-visible{outline:2px solid var(--brass)}
+  .chips{flex-wrap:nowrap;overflow-x:auto;width:calc(100% + 36px);margin:0 -18px;padding:0 18px;scrollbar-width:none;gap:8px}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{padding:9px 14px;min-height:38px}
+  .selectish{min-height:38px;flex:none}
+  .count{font-size:12.5px;margin-top:0}
+  .count:not(:has(button)){display:none}
+
+  /* Liste oder Karte */
+  .split{display:block}
+  .mapbox{display:none;position:relative;top:0;height:calc(100vh - 54px - 150px - 64px);min-height:380px;border-radius:12px}
+  .split.map-on .mapbox{display:block}
+  .split.map-on .list{display:none}
+
+  /* Kompakte Karten */
+  .row{grid-template-columns:1fr;padding:18px 0 16px;gap:6px;padding-right:52px}
+  .row h3{font-size:22px}
+  .row .meta{font-size:13px}
+  .row .verdict{font-size:14.5px;margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .row .side{order:2;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:6px 14px;text-align:left}
+  .row .side .bar-label{display:none}
+  .row .price{font-size:15px}
+  .row .price small{display:inline;margin-left:4px}
+  .amen{margin-top:8px}
+  .amen .tag:nth-child(n+4){display:none}
+  .row-actions{display:none}
+  .cmp-mini{display:grid;place-items:center;position:absolute;right:0;top:18px;width:40px;height:40px;border-radius:50%;border:1px solid var(--line2);background:transparent;color:var(--ivory);font-size:22px;line-height:1;cursor:pointer}
+  .cmp-mini[aria-pressed="true"]{background:var(--brass);border-color:var(--brass);color:var(--night)}
+
+  /* Ausblicke als Karussell */
+  .band{height:240px}
+  .band figcaption{padding:40px 18px 12px;font-size:11px}
+  .band figcaption b{font-size:1.2rem;width:100%}
+  .views{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -18px;padding:0 18px 4px;scrollbar-width:none}
+  .views::-webkit-scrollbar{display:none}
+  .view{flex:0 0 82%;scroll-snap-align:start;border:1px solid var(--line2);border-radius:12px;padding:18px}
+  .view h3{font-size:23px}
+  .view p{font-size:14.5px}
+
+  /* Matrix kompakt */
+  .matrix-wrap{max-height:70vh;margin:0 -18px;border-radius:0;border-left:0;border-right:0}
+  table.matrix{min-width:780px;font-size:12.5px}
+  .matrix tbody th{min-width:136px;max-width:136px;white-space:normal;line-height:1.25;padding-left:12px;font-size:12.5px}
+  .matrix thead th{height:104px}
+  .matrix th,.matrix td{padding:7px 4px}
+  .matrix .meter i{width:5px;height:3px}
+  .legend{gap:10px 14px;font-size:12.5px}
+
+  /* Preise */
+  .pr{grid-template-columns:1fr auto;gap:4px 12px;padding:10px 0}
+  .pr .track{grid-column:1/-1;order:3}
+  .pr button{font-size:14.5px}
+  .pr .val{display:flex;gap:8px;align-items:baseline}
+  .pr .val small{display:inline}
+
+  /* Bottom-Sheet */
+  .drawer{height:94vh;border-radius:18px 18px 0 0}
+  .drawer.dragging{transition:none}
+  .d-close{justify-content:space-between;align-items:center;padding:10px 16px 6px;touch-action:none}
+  .grab{display:block;width:44px;height:5px;border-radius:3px;background:var(--line2);position:absolute;left:50%;top:8px;transform:translateX(-50%)}
+  .d-close .btn{margin-left:auto;padding:7px 14px}
+  .d-in{padding:6px 18px 0}
+  .d-in h2{font-size:2.2rem}
+  .d-lead{font-size:19px}
+  .d-top{display:none!important}
+  .d-bar{position:sticky;bottom:0;display:flex;gap:8px;padding:12px 0 calc(12px + env(safe-area-inset-bottom));margin-top:28px;background:linear-gradient(transparent,var(--card) 28%);}
+  .d-bar .btn{flex:1;justify-content:center;min-height:44px}
+  .cmp-table{min-width:0;font-size:13.5px}
+  .cmp-table th,.cmp-table td{padding:8px 6px}
+  .cmp-table thead th{font-size:17px}
+  .cmp-table tbody th{white-space:normal;width:96px}
+
+  /* Tab-Leiste */
+  .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:960;background:rgba(10,22,29,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line2);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+  .tabbar button{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--mist);padding:4px 0;position:relative;-webkit-tap-highlight-color:transparent}
+  .tabbar button:focus-visible{outline:2px solid var(--brass);border-radius:8px}
+  .tabbar svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .tabbar button.on{color:var(--brass)}
+  .tabbar b{position:absolute;top:0;left:calc(50% + 6px);min-width:17px;height:17px;border-radius:9px;background:var(--brass);color:var(--night);font-size:10.5px;display:grid;place-items:center;padding:0 4px}
+  .cmp-tray{display:none}
+  .toast{display:block;position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--ivory);color:var(--night);padding:10px 16px;border-radius:999px;font-size:14px;font-weight:600;z-index:1100;transition:opacity .2s,transform .2s;max-width:calc(100% - 32px);text-align:center}
+  .toast.on{opacity:1;transform:translate(-50%,0)}
+  footer{padding:40px 0 30px}
+  .leaflet-control-zoom{display:none}
+}
 </style>
 </head>
 <body>
@@ -322,7 +475,7 @@ footer strong{color:var(--ivory);font-family:var(--serif);font-size:20px;font-we
 
 <main>
   <section class="hero" aria-labelledby="heroTitle">
-    <figure class="hero-media"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/CH.LU.Luzern_Kapellbr%C3%BCcke_01_16x9-R_16384x9216.jpg?width=2400" data-fallback="https://commons.wikimedia.org/wiki/Special:FilePath/Luzern_Pilatus_sunset_1170967.jpg?width=2400" alt="Kapellbrücke und Wasserturm in Luzern zur blauen Stunde" fetchpriority="high" decoding="async" onerror="if(this.dataset.fallback){this.src=this.dataset.fallback;this.dataset.fallback=''}else{this.remove()}"></figure>
+    <figure class="hero-media"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/CH.LU.Luzern_Kapellbr%C3%BCcke_01_16x9-R_16384x9216.jpg?width=2400" srcset="https://commons.wikimedia.org/wiki/Special:FilePath/CH.LU.Luzern_Kapellbr%C3%BCcke_01_16x9-R_16384x9216.jpg?width=960 960w, https://commons.wikimedia.org/wiki/Special:FilePath/CH.LU.Luzern_Kapellbr%C3%BCcke_01_16x9-R_16384x9216.jpg?width=1600 1600w, https://commons.wikimedia.org/wiki/Special:FilePath/CH.LU.Luzern_Kapellbr%C3%BCcke_01_16x9-R_16384x9216.jpg?width=2400 2400w" sizes="100vw" data-fallback="https://commons.wikimedia.org/wiki/Special:FilePath/Luzern_Pilatus_sunset_1170967.jpg?width=2400" alt="Kapellbrücke und Wasserturm in Luzern zur blauen Stunde" fetchpriority="high" decoding="async" onerror="if(this.dataset.fallback){this.src=this.dataset.fallback;this.dataset.fallback=''}else{this.remove()}"></figure>
     <div class="wrap hero-grid">
       <div class="rise">
         <p class="place">Zwischen Pilatus und Vierwaldstättersee</p>
@@ -383,8 +536,13 @@ footer strong{color:var(--ivory);font-family:var(--serif);font-size:20px;font-we
         <div class="search">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
           <label class="sr" for="q">Suchen</label>
-          <input id="q" type="search" placeholder="Name, Quartier oder Angebot" autocomplete="off">
+          <input id="q" type="search" placeholder="Gym, Quartier, Angebot" autocomplete="off">
         </div>
+        <div class="seg" role="group" aria-label="Ansicht">
+          <button data-view="list" aria-pressed="true">Liste</button>
+          <button data-view="map" aria-pressed="false">Karte</button>
+        </div>
+        <div class="chips">
         <button class="chip" data-f="open" aria-pressed="false">Jetzt offen</button>
         <button class="chip" data-f="h24" aria-pressed="false">24/7</button>
         <button class="chip" data-f="sauna" aria-pressed="false">Sauna</button>
@@ -400,16 +558,17 @@ footer strong{color:var(--ivory);font-family:var(--serif);font-size:20px;font-we
           <option value="dist">Nach Distanz</option>
           <option value="name">Nach Name</option>
         </select>
+        </div>
         <div class="count" id="count"></div>
       </div>
-      <div class="split">
+      <div class="split" id="split">
         <div class="list" id="list"></div>
         <div class="mapbox" aria-label="Karte"><div id="map"></div></div>
       </div>
     </div>
   </section>
 
-  <figure class="band"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Luzern_Pilatus_sunset_1170967.jpg?width=2400" alt="Luzern, Vierwaldstättersee und Pilatus bei Sonnenuntergang" loading="lazy" decoding="async" onerror="this.remove()"><figcaption><b>Zwischen Pilatus und Vierwaldstättersee</b><span>Foto: <a href="https://commons.wikimedia.org/wiki/File:Luzern_Pilatus_sunset_1170967.jpg" target="_blank" rel="noopener">Reinhold Möller</a>, CC BY-SA 4.0</span></figcaption></figure>
+  <figure class="band"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Luzern_Pilatus_sunset_1170967.jpg?width=2400" srcset="https://commons.wikimedia.org/wiki/Special:FilePath/Luzern_Pilatus_sunset_1170967.jpg?width=1200 1200w, https://commons.wikimedia.org/wiki/Special:FilePath/Luzern_Pilatus_sunset_1170967.jpg?width=2400 2400w" sizes="100vw" alt="Luzern, Vierwaldstättersee und Pilatus bei Sonnenuntergang" loading="lazy" decoding="async" onerror="this.remove()"><figcaption><b>Zwischen Pilatus und Vierwaldstättersee</b><span>Foto: <a href="https://commons.wikimedia.org/wiki/File:Luzern_Pilatus_sunset_1170967.jpg" target="_blank" rel="noopener">Reinhold Möller</a>, CC BY-SA 4.0</span></figcaption></figure>
 
   <section class="block" id="ausblick" aria-labelledby="vTitle">
     <div class="wrap">
@@ -460,9 +619,18 @@ footer strong{color:var(--ivory);font-family:var(--serif);font-size:20px;font-we
   </div>
 </footer>
 
+<nav class="tabbar" aria-label="Schnellzugriff">
+  <button data-go="top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7v9h-5v-6H9v6H4z"/></svg>Finder</button>
+  <button data-go="quartiere"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h18M5 20V9l4-3 4 3v11M13 20v-7l3-2 3 2v7"/></svg>Quartiere</button>
+  <button data-go="list"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Liste</button>
+  <button data-go="map"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6-5.4-6-11a6 6 0 0 1 12 0c0 5.6-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>Karte</button>
+  <button data-go="cmp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4v16M16 4v16M4 8h8M12 16h8"/></svg>Vergleich<b id="tabCmpN" hidden>0</b></button>
+</nav>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dTitle" tabindex="-1">
-  <div class="d-close"><button class="btn" id="dClose">Schliessen</button></div>
+  <div class="d-close" id="dHandle"><span class="grab" aria-hidden="true"></span><button class="btn" id="dClose">Schliessen</button></div>
   <div class="d-in" id="dBody"></div>
 </aside>
 
