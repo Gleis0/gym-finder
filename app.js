@@ -7,8 +7,8 @@
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const DAYS = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
   const DSHORT = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
-  const PLATES = ['#D2383F', '#3C6FD1', '#E8B93C', '#3D9A63', '#ECEFEA'];
-  const ACCENTS = ['#D2383F', '#3C6FD1', '#E8B93C', '#3D9A63'];
+  const BRASS = '#C4A46C';
+  const PIN = ['#3A4A4F', '#5B5A4D', '#7D6E50', '#9E8659', '#B59A64', '#C4A46C'];
   const AMEN = { h24: '24/7', sauna: 'Sauna', pool: 'Pool', kurse: 'Kurse', kids: 'Kinderbetreuung', day: 'Tageseintritt', trial: 'Gratis-Probetraining', pt: 'Personal Training', parking: 'Parkplätze' };
   const chf = (n) => 'CHF ' + n.toLocaleString('de-CH').replace(/,/g, '’');
 
@@ -74,15 +74,18 @@
     if (t === 'late') return wd.some((d) => d === 'x' || (d && d.some(([, b]) => toM(b) >= 1350)));
     return true;
   }
+  const WHERE = [
+    ['any', 'irgendwo in der Region'], ['near', 'nahe am Bahnhof'],
+    ['q:bahnhof', 'in der Neustadt'], ['q:altstadt', 'in der Altstadt oder am See'], ['q:reuss', 'an der Reuss'],
+    ['q:tribschen', 'in Tribschen oder auf der Allmend'], ['q:kriens', 'in Kriens'], ['q:littau', 'in Littau oder Emmen'],
+    ['q:ebikon', 'in Ebikon oder Root'], ['me', 'nahe bei mir'],
+  ];
+  $('#selWhere').innerHTML = WHERE.map(([v, t]) => `<option value="${v}">${t}</option>`).join('');
   function whereOk(g, w) {
-    switch (w) {
-      case 'bahnhof': return g.dist <= 1.2;
-      case 'stadt': return ['zentrum', 'allmend', 'west'].includes(g.region);
-      case 'kriens': return g.region === 'kriens';
-      case 'nord': return ['emmen', 'west', 'ebikon', 'root'].includes(g.region);
-      case 'me': return state.me ? km(state.me, g) <= 4 : true;
-      default: return true;
-    }
+    if (w.startsWith('q:')) return g.region === w.slice(2);
+    if (w === 'near') return g.dist <= 1.2;
+    if (w === 'me') return state.me ? km(state.me, g) <= 4 : true;
+    return true;
   }
   const budgetOk = (g, b) => !b || g.price.year == null || g.price.year <= b;
   const prefsOk = (g) => budgetOk(g, state.budget) && timeOk(g, state.time) && whereOk(g, state.where);
@@ -97,21 +100,13 @@
 
   /* ---------- Hantel ---------- */
   function barbell(n, label = true) {
-    const ws = [11, 10, 9, 8, 7];
-    let x = 14, plates = '';
-    for (let i = 0; i < n; i++) {
-      const h = i === 4 ? 22 : 28;
-      plates += `<rect x="${x}" y="${(30 - h) / 2}" width="${ws[i]}" height="${h}" rx="2" fill="${PLATES[i]}"/>`;
-      x += ws[i] + 1.5;
-    }
-    const lbl = `${n} von 5`;
-    return `<svg class="bar" width="104" height="30" viewBox="0 0 104 30" role="img" aria-label="Eignung ${lbl}">`
-      + `<rect x="0" y="13.5" width="104" height="3" rx="1.5" fill="#93A6AA" opacity=".55"/>`
-      + `<rect x="8" y="9" width="4" height="12" rx="1" fill="#93A6AA"/>${plates}</svg>`
-      + (label ? `<span class="bar-label">${n ? lbl : 'passt nicht'}</span>` : '');
+    let bars = '';
+    for (let i = 0; i < 5; i++) bars += `<i class="${i < n ? 'on' : ''}"></i>`;
+    return `<span class="meter" role="img" aria-label="Eignung ${n} von 5">${bars}</span>`
+      + (label ? `<span class="bar-label">${n ? n + ' von 5' : 'passt nicht'}</span>` : '');
   }
   const typeObj = () => TYPES.find((t) => t.k === state.type);
-  const pinColor = (s) => (s ? PLATES[5 - s] : '#55686C');
+  
 
   /* ---------- Hero ---------- */
   const selType = $('#selType');
@@ -126,7 +121,7 @@
   function renderPodium() {
     const t = typeObj();
     const pool = GYMS.filter((g) => g.sc[t.k] > 0 && prefsOk(g)).sort(rankCmp).slice(0, 3);
-    $('#podTitle').textContent = `Am besten für ${t.s}`;
+    $('#podSub').textContent = `Am besten für ${t.s}${state.where !== 'any' ? ', ' + WHERE.find((w) => w[0] === state.where)[1] : ''}`;
     if (!pool.length) {
       $('#podium').innerHTML = `<div class="pod-empty">Mit diesen Wünschen passt kein Gym. Erhöhe das Budget oder wähle einen anderen Ort.<br><button class="btn" id="podReset">Wünsche zurücksetzen</button></div>`;
       $('#podReset').onclick = resetPrefs;
@@ -246,8 +241,8 @@
       const el = markers[g.id].getElement()?.querySelector('.pin');
       if (!el) return;
       const s = g.sc[state.type], rank = shown.get(g.id);
-      el.style.background = pinColor(s);
-      el.style.color = s === 1 || s === 3 ? '#0A1E24' : s ? '#fff' : '#0A1E24';
+      el.style.background = PIN[s];
+      el.style.color = s >= 3 ? '#0A161D' : '#ECE6D8';
       el.textContent = rank && state.sort === 'match' ? rank : '';
       el.classList.toggle('dim', !rank);
       el.classList.toggle('hot', state.hot === g.id);
@@ -265,7 +260,7 @@
   function renderMatrix() {
     const t = state.type;
     const rows = [...GYMS].sort((a, b) => b.sc[t] - a.sc[t] || a.name.localeCompare(b.name, 'de'));
-    const cell = (n) => n ? `<span class="cell" aria-label="${n} von 5">${PLATES.slice(0, n).map((c) => `<i style="background:${c}"></i>`).join('')}</span>` : '<span class="cell zero" aria-label="passt nicht">–</span>';
+    const cell = (n) => n ? barbell(n, false) : '<span class="cell zero" aria-label="passt nicht">–</span>';
     $('#mx').innerHTML = `<thead><tr><th scope="col">Gym</th>${TYPES.map((x) => `<th scope="col" class="${x.k === t ? 'on' : ''}"><button data-type="${x.k}" aria-pressed="${x.k === t}">${esc(x.s)}</button></th>`).join('')}</tr></thead>`
       + `<tbody>${rows.map((g) => `<tr><th scope="row"><button data-open="${g.id}">${esc(g.name)}</button></th>${TYPES.map((x) => `<td class="${x.k === t ? 'on' : ''}">${cell(g.sc[x.k])}</td>`).join('')}</tr>`).join('')}</tbody>`;
     $('#legend').innerHTML = [1, 2, 3, 4, 5].map((n) => `<span>${cell(n)} ${['passt kaum', 'möglich', 'gut', 'sehr gut', 'erste Wahl'][n - 1]}</span>`).join('');
@@ -283,7 +278,7 @@
         <div class="val">${chf(g.price.year)}<small>${chf(Math.round(g.price.year / 12))} / Mt.</small></div>
       </div>`).join('');
     const un = GYMS.filter((g) => !g.price.year);
-    $('#unpriced').innerHTML = 'Ohne öffentlichen Jahrespreis: ' + un.map((g) => `${esc(g.name)}${g.price.day ? ` (Eintritt ${chf(g.price.day)})` : ''}`).join(', ') + '. Hell markiert: deine Top 3.';
+    $('#unpriced').innerHTML = 'Ohne öffentlichen Jahrespreis: ' + un.map((g) => `${esc(g.name)}${g.price.day ? ` (Eintritt ${chf(g.price.day)})` : ''}`).join(', ') + '.';
   }
 
   /* ---------- Drawer ---------- */
@@ -324,7 +319,7 @@
       <h2 id="dTitle">${esc(g.name)}</h2>
       <div class="meta">${esc(g.kind)}, ${esc(g.chain)}</div>
       <p style="margin-top:6px"><span class="status ${st.k}"><i></i>${esc(st.t)}</span></p>
-      <p style="font-size:19px;margin-top:16px">${esc(g.verdict)}</p>
+      <p class="d-lead">${esc(g.verdict)}</p>
       <div class="d-actions">
         <a class="btn primary" href="${g.url}" target="_blank" rel="noopener">Website öffnen</a>
         <a class="btn" href="${maps}" target="_blank" rel="noopener">Route planen</a>
@@ -398,12 +393,50 @@
   }
 
   /* ---------- Render ---------- */
-  function applyAccent() {
-    const i = TYPES.findIndex((t) => t.k === state.type);
-    document.documentElement.style.setProperty('--accent', ACCENTS[i % ACCENTS.length]);
+  /* ---------- Quartiere & Ausblicke ---------- */
+  function setWhere(v) {
+    state.where = v; $('#selWhere').value = v; sizeSelect($('#selWhere'));
+    renderAll();
   }
+  function renderQuarters() {
+    const t = typeObj();
+    const tiles = Object.keys(REGIONS).map((k) => {
+      const gs = GYMS.filter((g) => g.region === k);
+      const best = [...gs].filter((g) => g.sc[t.k] > 0).sort(rankCmp)[0];
+      return `<button class="q" data-where="q:${k}" aria-pressed="${state.where === 'q:' + k}">
+        <span class="n">${gs.length}<small>${gs.length === 1 ? 'Adresse' : 'Adressen'}</small></span>
+        <span class="t">${esc(REGIONS[k])}</span>
+        <span class="d">${best ? `Für ${esc(t.s)}: ${esc(best.name)}` : esc(REGION_NOTE[k])}</span>
+      </button>`;
+    });
+    tiles.push(`<button class="q all" data-where="any" aria-pressed="${state.where === 'any'}">
+      <span class="n">${GYMS.length}<small>Adressen</small></span>
+      <span class="t">Ganz Luzern</span>
+      <span class="d">Alle Quartiere und die Agglomeration</span>
+    </button>`);
+    $('#quarters').innerHTML = tiles.join('');
+  }
+  const VIEWS = [
+    { id: 'fp-national', t: 'Schwimmen über den Dächern', d: 'Der Aussenpool des Fitnessparks National liegt auf dem Dach, 28 bis 32 Grad warm, mit Panoramablick – auch im Winter.', icon: 'pool' },
+    { id: 'hallenbad', t: 'Bahnen mit Pilatusblick', d: 'Acht 25-Meter-Bahnen im Hallenbad Allmend, durch die Fensterfront der Pilatus. Mit dem Swiss-Fit-Abo gratis.', icon: 'peak' },
+    { id: 'activ-ebikon', t: 'Sauna am Teich', d: 'In Ebikon liegen die Aussensaunen über einem Teich, erreichbar über einen kleinen Holzsteg – inklusive Berghütten-Sauna.', icon: 'steam' },
+    { id: 'jimgym', t: 'Klimmzüge am See', d: 'Der Calisthenics Club von JIM GYM trainiert von April bis September jeden Montag um 18 Uhr draussen, im Winter gratis in der Halle.', icon: 'bar' },
+    { id: 'boxing', t: 'Boxen in der Altstadt', d: 'Der Boxing Club Luzern trainiert im Gymnastiksaal Mariahilf, fünf Minuten vom Bahnhof, mit Fitnessboxen für alle.', icon: 'glove' },
+    { id: 'pilatus-indoor', t: 'Vom Seil an den Fels', d: 'Pilatus Indoor in Root hat eine grosse Aussenanlage als Übergang vom Hallen- zum Felsklettern, jährlich rund 500 neue Routen.', icon: 'rope' },
+  ];
+  function renderViews() {
+    $('#views').innerHTML = VIEWS.map((v) => {
+      const g = GYMS.find((x) => x.id === v.id);
+      return `<article class="view">
+        <h3>${esc(v.t)}</h3>
+        <p>${esc(v.d)}</p>
+        <button data-open="${g.id}">${esc(g.name)} ansehen</button>
+      </article>`;
+    }).join('');
+  }
+
   function renderAll() {
-    applyAccent(); renderPodium(); renderList(); renderMatrix(); renderPrices();
+    renderPodium(); renderQuarters(); renderList(); renderMatrix(); renderPrices();
   }
 
   /* ---------- Events ---------- */
@@ -447,6 +480,8 @@
     if (o) { e.preventDefault(); showGym(o.dataset.open); return; }
     const c = e.target.closest('[data-cmp]');
     if (c) { toggleCmp(c.dataset.cmp); return; }
+    const wq = e.target.closest('[data-where]');
+    if (wq) { setWhere(wq.dataset.where); document.getElementById('alle').scrollIntoView({ behavior: 'smooth' }); return; }
     const t = e.target.closest('[data-type]');
     if (t) { state.type = t.dataset.type; selType.value = state.type; store.set('type', state.type); sizeSelect(selType); renderAll(); }
   });
@@ -469,6 +504,8 @@
 
   /* ---------- Start ---------- */
   $('#stand').textContent = STAND;
+  $('#barDemo').innerHTML = barbell(5, false);
+  renderViews();
   sizeAll();
   initMap();
   renderAll();
